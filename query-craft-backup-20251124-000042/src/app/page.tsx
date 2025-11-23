@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import Editor from "./components/Editor";
 import ResultsGrid from "./components/ResultsGrid";
@@ -10,7 +11,7 @@ import SchemaSidebar from "./components/SchemaSidebar";
 // Types
 interface QueryResult {
   columns: string[];
-  values: (string | number | boolean | null)[][];
+  values: any[][];
   rowsAffected?: number;
   executionTime: number;
 }
@@ -50,7 +51,6 @@ export default function Home() {
         const newSchema = getSchemaFn();
         setSchema(newSchema);
         setIsInitialized(true);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         setError(`Failed to initialize database: ${err.message}`);
       }
@@ -81,7 +81,6 @@ export default function Home() {
       ) {
         await refreshSchema();
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "Query execution failed");
       setResults(null);

@@ -1,11 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let db: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let SQL: any = null;
 
 export interface QueryResult {
     columns: string[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     values: any[][];
     rowsAffected?: number;
     executionTime: number;
@@ -86,7 +83,6 @@ export async function executeQuery(sql: string): Promise<QueryResult> {
             rowsAffected: db.getRowsModified(),
             executionTime: endTime - startTime
         };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         throw new Error(error.message || 'Query execution failed');
     }
@@ -108,7 +104,6 @@ export function getSchema(): SchemaTable[] {
 
         const tables: SchemaTable[] = [];
 
-
         for (const row of tablesResult[0].values) {
             const tableName = row[0] as string;
 
@@ -116,7 +111,6 @@ export function getSchema(): SchemaTable[] {
             const columnsResult = db.exec(`PRAGMA table_info(${tableName})`);
 
             if (columnsResult.length > 0) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const columns: SchemaColumn[] = columnsResult[0].values.map((col: any) => ({
                     name: col[1] as string,
                     type: col[2] as string,

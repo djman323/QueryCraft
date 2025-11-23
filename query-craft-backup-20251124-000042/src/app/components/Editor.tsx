@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import MonacoEditor, { OnMount } from "@monaco-editor/react";
+import MonacoEditor from "@monaco-editor/react";
 import { Play, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -12,10 +12,9 @@ type EditorProps = {
 
 const Editor: React.FC<EditorProps> = ({ onRun, isExecuting }) => {
   const [sql, setSql] = useState<string>("-- Write your SQL query here\nSELECT * FROM users LIMIT 10;");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null);
 
-  const handleEditorDidMount: OnMount = (editor, monaco) => {
+  const handleEditorDidMount = (editor: any, monaco: any) => {
     editorRef.current = editor;
     
     // Add keyboard shortcut: Ctrl+Enter to run query

@@ -7,7 +7,7 @@ import { Download, Database, Clock } from "lucide-react";
 interface ResultsGridProps {
   data: {
     columns: string[];
-    values: (string | number | boolean | null)[][];
+    values: any[][];
     rowsAffected?: number;
     executionTime: number;
   } | null;

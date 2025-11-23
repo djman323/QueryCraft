@@ -9,7 +9,7 @@ declare module 'sql.js' {
 
     export interface QueryExecResult {
         columns: string[];
-        values: (string | number | boolean | null)[][];
+        values: any[][];
     }
 
     export interface SqlJsStatic {
