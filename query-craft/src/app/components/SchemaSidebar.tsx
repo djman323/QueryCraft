@@ -25,6 +25,7 @@ export default function SchemaSidebar({ schema }: SchemaSidebarProps) {
     new Set(schema.map(t => t.name))
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleTable = (tableName: string) => {
     const newExpanded = new Set(expandedTables);
@@ -44,10 +45,10 @@ export default function SchemaSidebar({ schema }: SchemaSidebarProps) {
   return (
     <motion.div
       initial={{ x: -300, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
+      animate={{ x: 0, opacity: 1, width: isCollapsed ? "50px" : "280px" }}
       transition={{ duration: 0.3 }}
       style={{
-        width: "280px",
+        width: isCollapsed ? "50px" : "280px",
         background: "var(--bg-secondary)",
         borderRight: "1px solid var(--border-primary)",
         display: "flex",
@@ -58,44 +59,63 @@ export default function SchemaSidebar({ schema }: SchemaSidebarProps) {
       {/* Header */}
       <div
         style={{
-          padding: "20px",
+          padding: isCollapsed ? "20px 10px" : "20px",
           borderBottom: "1px solid var(--border-primary)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: isCollapsed ? "0" : "16px", justifyContent: isCollapsed ? "center" : "flex-start" }}>
           <Database size={20} style={{ color: "var(--accent-primary)" }} />
-          <h2 style={{ fontSize: "1.125rem", fontWeight: 600 }}>Schema</h2>
+          {!isCollapsed && <h2 style={{ fontSize: "1.125rem", fontWeight: 600 }}>Schema</h2>}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            style={{
+              marginLeft: isCollapsed ? "0" : "auto",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: "4px",
+              display: "flex",
+              alignItems: "center",
+              color: "var(--text-muted)",
+            }}
+            title={isCollapsed ? "Expand" : "Collapse"}
+          >
+            {isCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+          </button>
         </div>
 
         {/* Search */}
-        <div style={{ position: "relative" }}>
-          <Search
-            size={16}
-            style={{
-              position: "absolute",
-              left: "10px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "var(--text-muted)",
-            }}
-          />
-          <input
-            type="text"
-            placeholder="Search tables..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px 12px 8px 36px",
-              borderRadius: "6px",
-              fontSize: "0.875rem",
-            }}
-          />
-        </div>
+        {!isCollapsed && (
+          <div style={{ position: "relative" }}>
+            <Search
+              size={16}
+              style={{
+                position: "absolute",
+                left: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-muted)",
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Search tables..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px 12px 8px 36px",
+                borderRadius: "6px",
+                fontSize: "0.875rem",
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Tables List */}
-      <div style={{ flex: 1, overflow: "auto", padding: "12px" }}>
+      {!isCollapsed && (
+        <div style={{ flex: 1, overflow: "auto", padding: "12px" }}>
         {filteredSchema.length === 0 ? (
           <div
             style={{
@@ -216,6 +236,7 @@ export default function SchemaSidebar({ schema }: SchemaSidebarProps) {
           </div>
         )}
       </div>
+      )}
     </motion.div>
   );
 }

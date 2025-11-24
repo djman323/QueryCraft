@@ -6,7 +6,9 @@ import Editor from "./components/Editor";
 import ResultsGrid from "./components/ResultsGrid";
 import QueryTabs from "./components/QueryTabs";
 import SchemaSidebar from "./components/SchemaSidebar";
+import FeaturesSidebar from "./components/FeaturesSidebar";
 import QueryLibrarySidebar from "./components/QueryLibrarySidebar";
+import ChartsView from "./components/ChartsView";
 
 // Types
 interface QueryResult {
@@ -41,6 +43,11 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [schema, setSchema] = useState<SchemaTable[]>([]);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [chartData, setChartData] = useState<{
+    type: "bar" | "pie" | "line";
+    title: string;
+    data: { label: string; value: number }[];
+  } | null>(null);
 
   // Initialize database on mount
   useEffect(() => {
@@ -137,8 +144,24 @@ export default function Home() {
         color: "var(--text-primary)",
       }}
     >
-      {/* Schema Sidebar */}
-      <SchemaSidebar schema={schema} />
+      {/* Left Sidebar Column - Schema + Features */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          borderRight: "1px solid var(--border-primary)",
+        }}
+      >
+        {/* Schema Sidebar - Top Half */}
+        <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
+          <SchemaSidebar schema={schema} />
+        </div>
+        
+        {/* Features Sidebar - Bottom Half */}
+        <div style={{ flex: 1, overflow: "auto", display: "flex" }}>
+          <FeaturesSidebar schema={schema} onShowChart={(chartData) => setChartData(chartData)} />
+        </div>
+      </div>
 
       {/* Main Editor Area */}
       <div
@@ -206,7 +229,11 @@ export default function Home() {
 
           {/* Results - 60% height */}
           <div style={{ flex: 1, minHeight: "0" }}>
-            <ResultsGrid data={results} error={error} />
+            {chartData ? (
+              <ChartsView chartData={chartData} onClose={() => setChartData(null)} />
+            ) : (
+              <ResultsGrid data={results} error={error} />
+            )}
           </div>
         </div>
 

@@ -32,7 +32,7 @@ export async function initDatabase(): Promise<void> {
         const initSqlJs = (await import('sql.js')).default;
 
         SQL = await initSqlJs({
-            locateFile: (file: string) => `/sql-wasm.wasm`
+            locateFile: () => `/sql-wasm.wasm`
         });
 
         db = new SQL.Database();
