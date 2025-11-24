@@ -32,39 +32,6 @@ const Editor: React.FC<EditorProps> = ({ onRun, isExecuting }) => {
     await onRun(sql);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const droppedSql = e.dataTransfer.getData('text/plain');
-    
-    if (droppedSql && editorRef.current) {
-      const editor = editorRef.current;
-      const position = editor.getPosition();
-      
-      // Insert at cursor position or end of file
-      if (position) {
-        editor.executeEdits('dnd', [{
-          range: {
-            startLineNumber: position.lineNumber,
-            startColumn: position.column,
-            endLineNumber: position.lineNumber,
-            endColumn: position.column
-          },
-          text: droppedSql,
-          forceMoveMarkers: true
-        }]);
-      } else {
-        // Fallback: append to end
-        const value = editor.getValue();
-        editor.setValue(value + (value ? '\n\n' : '') + droppedSql);
-      }
-    }
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -128,8 +95,6 @@ const Editor: React.FC<EditorProps> = ({ onRun, isExecuting }) => {
           overflow: "hidden",
           boxShadow: "var(--shadow-md)",
         }}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
       >
         <MonacoEditor
           height="100%"

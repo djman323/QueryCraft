@@ -6,7 +6,6 @@ import Editor from "./components/Editor";
 import ResultsGrid from "./components/ResultsGrid";
 import QueryTabs from "./components/QueryTabs";
 import SchemaSidebar from "./components/SchemaSidebar";
-import QueryLibrarySidebar from "./components/QueryLibrarySidebar";
 
 // Types
 interface QueryResult {
@@ -224,9 +223,6 @@ export default function Home() {
           Made by Devansh Jani
         </div>
       </div>
-
-      {/* Query Library Sidebar */}
-      <QueryLibrarySidebar />
     </div>
   );
 }
