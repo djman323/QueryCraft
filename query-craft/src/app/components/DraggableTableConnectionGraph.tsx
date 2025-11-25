@@ -1,3 +1,20 @@
+/**
+ * Draggable Table Connection Graph Component
+ * 
+ * Interactive ER diagram that visualizes database table relationships.
+ * Users can drag tables around to organize the layout, and foreign key
+ * relationships are automatically detected and displayed as connection arrows.
+ * 
+ * Features:
+ * - Drag-and-drop table positioning
+ * - Automatic foreign key detection (by _id suffix convention)
+ * - SVG-based connection rendering with arrows
+ * - Full table schema display in each node
+ * - Grid-based initial layout
+ * 
+ * @component
+ */
+
 import React, { useState, useRef, useEffect } from "react";
 import { motion, useDragControls } from "framer-motion";
 import { Key, Hash, Type, Calendar, AlignLeft, CheckSquare } from "lucide-react";

@@ -1,21 +1,55 @@
+/**
+ * Query Tabs Component
+ * 
+ * Manages multiple query tabs allowing users to work on different SQL queries simultaneously.
+ * Provides tab switching, adding new tabs, and closing tabs functionality.
+ * 
+ * @component
+ */
+
 "use client";
 
 import { motion } from "framer-motion";
 import { Plus, X } from "lucide-react";
 
+/**
+ * Represents a query tab
+ */
 interface Tab {
+  /** Unique tab identifier */
   id: number;
+  /** Display name of the tab */
   name: string;
 }
 
+/**
+ * Props for the QueryTabs component
+ */
 interface QueryTabsProps {
+  /** Array of all tabs */
   tabs: Tab[];
+  /** ID of the currently active tab */
   activeTab: number;
+  /** Callback when a tab is selected */
   onSelectTab: (id: number) => void;
+  /** Callback to add a new tab */
   onAddTab: () => void;
+  /** Callback to close a tab */
   onCloseTab: (id: number) => void;
 }
 
+/**
+ * Query Tabs Component
+ * 
+ * Renders a tab bar with:
+ * - Individual tabs with active state highlighting
+ * - Close buttons (prevents closing last tab)
+ * - Add button to create new tabs
+ * - Smooth animations for tab switching
+ * 
+ * @param props - Component props
+ * @returns Rendered tab bar
+ */
 export default function QueryTabs({
   tabs,
   activeTab,

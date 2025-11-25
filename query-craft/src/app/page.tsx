@@ -1,3 +1,13 @@
+/**
+ * Main Application Page
+ * 
+ * This is the root component of QueryCraft that orchestrates the entire SQL editor application.
+ * It manages global state, database initialization, query execution, and coordinates
+ * communication between all child components.
+ * 
+ * @module page
+ */
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,31 +21,67 @@ import QueryLibrarySidebar from "./components/QueryLibrarySidebar";
 import ChartsView from "./components/ChartsView";
 import DraggableTableConnectionGraph from "./components/DraggableTableConnectionGraph";
 
-// Types
+/**
+ * Result of a SQL query execution
+ */
 interface QueryResult {
+  /** Column names in the result set */
   columns: string[];
+  /** 2D array of row data */
   values: (string | number | boolean | null)[][];
+  /** Number of rows affected (for DML operations) */
   rowsAffected?: number;
+  /** Execution time in milliseconds */
   executionTime: number;
 }
 
+/**
+ * Represents a database table with its columns
+ */
 interface SchemaTable {
+  /** Table name */
   name: string;
+  /** Array of column definitions */
   columns: SchemaColumn[];
 }
 
+/**
+ * Represents a table column with its metadata
+ */
 interface SchemaColumn {
+  /** Column name */
   name: string;
+  /** Data type (TEXT, INTEGER, etc.) */
   type: string;
+  /** Whether column has NOT NULL constraint */
   notnull: boolean;
+  /** Whether column is a primary key */
   pk: boolean;
 }
 
+/**
+ * Represents a query editor tab
+ */
 interface Tab {
+  /** Unique tab identifier */
   id: number;
+  /** Display name of the tab */
   name: string;
 }
 
+/**
+ * Main application component
+ * 
+ * Manages the entire QueryCraft application including:
+ * - Database initialization and lifecycle
+ * - Query execution and result display
+ * - Tab management for multiple queries
+ * - Schema visualization and exploration
+ * - Chart generation from query results
+ * - ER diagram visualization
+ * 
+ * @returns The rendered application
+ */
 export default function Home() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [tabs, setTabs] = useState<Tab[]>([{ id: 1, name: "Query 1" }]);
@@ -51,7 +97,10 @@ export default function Home() {
   } | null>(null);
   const [showConnections, setShowConnections] = useState(false);
 
-  // Initialize database on mount
+  /**
+   * Initialize SQL.js database on component mount
+   * Loads sample data and retrieves initial schema
+   */
   useEffect(() => {
     const init = async () => {
       try {
@@ -68,12 +117,26 @@ export default function Home() {
     init();
   }, []);
 
+  /**
+   * Refreshes the database schema after DDL operations
+   * Called after CREATE, DROP, or ALTER statements
+   */
   const refreshSchema = async () => {
     const { getSchema: getSchemaFn } = await import("./lib/sqlEngine");
     const newSchema = getSchemaFn();
     setSchema(newSchema);
   };
 
+  /**
+   * Executes a SQL query and updates the UI with results
+   * 
+   * @param sql - The SQL query string to execute
+   * 
+   * Handles:
+   * - Query execution and timing
+   * - Error display
+   * - Schema refresh for DDL commands
+   */
   const runQuery = async (sql: string) => {
     setIsExecuting(true);
     setError(null);
@@ -100,12 +163,24 @@ export default function Home() {
     }
   };
 
+  /**
+   * Creates a new query tab
+   * Generates a unique ID and switches to the new tab
+   */
   const addTab = () => {
     const newId = Math.max(...tabs.map(t => t.id)) + 1;
     setTabs([...tabs, { id: newId, name: `Query ${newId}` }]);
     setActiveTab(newId);
   };
 
+  /**
+   * Closes a query tab
+   * 
+   * @param id - ID of the tab to close
+   * 
+   * Prevents closing the last tab and switches to another tab if
+   * the closed tab was active
+   */
   const closeTab = (id: number) => {
     if (tabs.length === 1) return;
     

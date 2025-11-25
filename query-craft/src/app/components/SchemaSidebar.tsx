@@ -1,25 +1,64 @@
+/**
+ * Schema Sidebar Component
+ * 
+ * Displays the database schema in an interactive, collapsible tree view.
+ * Shows tables with their columns, types, and primary key indicators.
+ * Features search filtering and sidebar collapse functionality.
+ * 
+ * @component
+ */
+
 "use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Database, ChevronDown, ChevronRight, Key, Search } from "lucide-react";
 
+/**
+ * Represents a column in a database table
+ */
 interface SchemaColumn {
+  /** Column name */
   name: string;
+  /** Data type (e.g., TEXT, INTEGER) */
   type: string;
+  /** Whether column has NOT NULL constraint */
   notnull: boolean;
+  /** Whether column is a primary key */
   pk: boolean;
 }
 
+/**
+ * Represents a database table with its columns
+ */
 interface SchemaTable {
+  /** Table name */
   name: string;
+  /** Array of column definitions */
   columns: SchemaColumn[];
 }
 
+/**
+ * Props for the SchemaSidebar component
+ */
 interface SchemaSidebarProps {
+  /** Array of database tables with columns */
   schema: SchemaTable[];
 }
 
+/**
+ * Schema Sidebar Component
+ * 
+ * Features:
+ * - Collapsible sidebar to save space
+ * - Expandable/collapsible tables
+ * - Search filter for tables and columns  
+ * - Primary key indicators
+ * - Column count badges
+ * 
+ * @param props - Component props
+ * @returns Rendered schema sidebar
+ */
 export default function SchemaSidebar({ schema }: SchemaSidebarProps) {
   const [expandedTables, setExpandedTables] = useState<Set<string>>(
     new Set(schema.map(t => t.name))
@@ -27,6 +66,10 @@ export default function SchemaSidebar({ schema }: SchemaSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  /**
+   * Toggles the expanded/collapsed state of a table
+   * @param tableName - Name of the table to toggle
+   */
   const toggleTable = (tableName: string) => {
     const newExpanded = new Set(expandedTables);
     if (newExpanded.has(tableName)) {

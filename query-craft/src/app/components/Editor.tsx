@@ -1,3 +1,12 @@
+/**
+ * SQL Editor Component
+ * 
+ * Provides a professional code editor powered by Monaco Editor (the editor from VS Code).
+ * Features SQL syntax highlighting, autocomplete, keyboard shortcuts, and drag-and-drop support.
+ * 
+ * @component
+ */
+
 "use client";
 
 import React, { useState, useRef } from "react";
@@ -7,16 +16,40 @@ import type { OnMount } from "@monaco-editor/react";
 import { Play, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
+/**
+ * Props for the Editor component
+ */
 type EditorProps = {
+  /** Callback function to execute the SQL query */
   onRun: (sql: string) => Promise<void>;
+  /** Whether a query is currently executing */
   isExecuting: boolean;
 };
 
+/**
+ * SQL Editor Component
+ * 
+ * Renders a Monaco editor configured for SQL with features:
+ * - Syntax highlighting and autocomplete
+ * - Ctrl+Enter keyboard shortcut to run queries
+ * - Drag-and-drop support for query templates
+ * - VS Code-like editing experience
+ * 
+ * @param props - Component props
+ * @returns Rendered editor with run button
+ */
 const Editor: React.FC<EditorProps> = ({ onRun, isExecuting }) => {
   const [sql, setSql] = useState<string>("-- Write your SQL query here\nSELECT * FROM users LIMIT 10;");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null);
 
+  /**
+   * Monaco editor mount callback
+   * Registers keyboard shortcuts when the editor is ready
+   * 
+   * @param editor - Monaco editor instance
+   * @param monaco - Monaco API object
+   */
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     
@@ -29,16 +62,30 @@ const Editor: React.FC<EditorProps> = ({ onRun, isExecuting }) => {
     );
   };
 
+  /**
+   * Executes the current SQL query
+   * Prevents execution if query is empty or already executing
+   */
   const handleRun = async () => {
     if (!sql.trim() || isExecuting) return;
     await onRun(sql);
   };
 
+  /**
+   * Handles drag over event for drag-and-drop support
+   * @param e - React drag event
+   */
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
   };
 
+  /**
+   * Handles drop event for drag-and-drop support
+   * Inserts dropped SQL at cursor position or appends to end
+   * 
+   * @param e - React drag event
+   */
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const droppedSql = e.dataTransfer.getData('text/plain');

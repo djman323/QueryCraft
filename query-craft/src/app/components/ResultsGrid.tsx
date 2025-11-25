@@ -1,19 +1,52 @@
+/**
+ * Results Grid Component
+ * 
+ * Displays SQL query results in a sortable, interactive table format.
+ * Provides CSV export, execution metrics, and handles various result states
+ * (success, error, empty, no data).
+ * 
+ * @component
+ */
+
 "use client";
 
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Database, Clock } from "lucide-react";
 
+/**
+ * Props for the ResultsGrid component
+ */
 interface ResultsGridProps {
+  /** Query result data or null if no query executed */
   data: {
+    /** Column names */
     columns: string[];
+    /** Row data as 2D array */
     values: (string | number | boolean | null)[][];
+    /** Number of rows affected by DML operations */
     rowsAffected?: number;
+    /** Query execution time in milliseconds */
     executionTime: number;
   } | null;
+  /** Error message if query failed */
   error: string | null;
 }
 
+/**
+ * Results Grid Component
+ * 
+ * Displays query results with:
+ * - Sortable columns (click to sort)
+ * - CSV export functionality
+ * - Execution time and row count metrics
+ * - NULL value handling
+ * - Error state display
+ * - Empty state messaging
+ * 
+ * @param props - Component props
+ * @returns Rendered results table or appropriate state message
+ */
 export default function ResultsGrid({ data, error }: ResultsGridProps) {
   const [sortColumn, setSortColumn] = useState<number | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -88,6 +121,12 @@ export default function ResultsGrid({ data, error }: ResultsGridProps) {
     );
   }
 
+  /**
+   * Handles column sorting
+   * Toggles sort direction if same column clicked, otherwise sorts ascending
+   * 
+   * @param columnIndex - Index of the column to sort by
+   */
   const handleSort = (columnIndex: number) => {
     if (sortColumn === columnIndex) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -111,6 +150,10 @@ export default function ResultsGrid({ data, error }: ResultsGridProps) {
       })
     : values;
 
+  /**
+   * Exports query results to CSV file
+   * Handles comma escaping and generates timestamped filename
+   */
   const exportToCSV = () => {
     const csvContent = [
       columns.join(","),

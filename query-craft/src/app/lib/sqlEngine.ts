@@ -1,29 +1,75 @@
+/**
+ * SQL Engine Module
+ * 
+ * This module provides a client-side SQL execution environment using SQL.js (SQLite compiled to WebAssembly).
+ * It handles database initialization, query execution, schema management, and data import/export.
+ * 
+ * @module sqlEngine
+ */
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let db: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let SQL: any = null;
 
+/**
+ * Represents the result of a SQL query execution
+ * @interface QueryResult
+ */
 export interface QueryResult {
+    /** Column names in the result set */
     columns: string[];
+    /** 2D array of values, each inner array represents a row */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     values: any[][];
+    /** Number of rows affected by INSERT/UPDATE/DELETE operations */
     rowsAffected?: number;
+    /** Query execution time in milliseconds */
     executionTime: number;
 }
 
+/**
+ * Represents a database table with its metadata
+ * @interface SchemaTable
+ */
 export interface SchemaTable {
+    /** Name of the table */
     name: string;
+    /** Array of column definitions */
     columns: SchemaColumn[];
 }
 
+/**
+ * Represents a column definition within a table
+ * @interface SchemaColumn
+ */
 export interface SchemaColumn {
+    /** Column name */
     name: string;
+    /** Data type (e.g., TEXT, INTEGER, REAL) */
     type: string;
+    /** Whether the column has NOT NULL constraint */
     notnull: boolean;
+    /** Whether the column is a primary key */
     pk: boolean;
 }
 
-// Initialize SQL.js
+/**
+ * Initializes the SQL.js database engine and loads sample data
+ * 
+ * This function:
+ * 1. Imports SQL.js library dynamically (client-side only)
+ * 2. Configures the WebAssembly file location
+ * 3. Creates a new in-memory database
+ * 4. Loads sample e-commerce data (users, products, orders, etc.)
+ * 
+ * @async
+ * @returns Promise that resolves when database is ready
+ * @throws Error if SQL.js initialization fails
+ * @example
+ * await initDatabase();
+ * // Database is now ready for queries
+ */
 export async function initDatabase(): Promise<void> {
     if (SQL) return;
 
@@ -45,7 +91,21 @@ export async function initDatabase(): Promise<void> {
     }
 }
 
-// Execute SQL query
+/**
+ * Executes a SQL query and returns formatted results
+ * 
+ * Handles both SELECT queries (returns data) and DML/DDL commands (returns status).
+ * Automatically measures execution time for performance tracking.
+ * 
+ * @async
+ * @param sql - The SQL query string to execute
+ * @returns Promise resolving to QueryResult with columns, values, and execution time
+ * @throws Error if query execution fails (e.g., syntax error, constraint violation)
+ * @example
+ * const result = await executeQuery('SELECT * FROM users LIMIT 5');
+ * console.log(result.columns); // ['id', 'username', 'email', ...]
+ * console.log(result.values);  // [[1, 'john_doe', 'john@example.com'], ...]
+ */
 export async function executeQuery(sql: string): Promise<QueryResult> {
     if (!db) {
         await initDatabase();
@@ -92,7 +152,22 @@ export async function executeQuery(sql: string): Promise<QueryResult> {
     }
 }
 
-// Get database schema
+/**
+ * Retrieves the current database schema
+ * 
+ * Queries the SQLite system tables to get information about all user-created tables
+ * and their column definitions (name, type, constraints).
+ * 
+ * @returns Array of SchemaTable objects, each containing table name and columns
+ * @example
+ * const schema = getSchema();
+ * schema.forEach(table => {
+ *   console.log(`Table: ${table.name}`);
+ *   table.columns.forEach(col => {
+ *     console.log(`  - ${col.name}: ${col.type}${col.pk ? ' (PK)' : ''}`);
+ *   });
+ * });
+ */
 export function getSchema(): SchemaTable[] {
     if (!db) return [];
 
@@ -138,13 +213,40 @@ export function getSchema(): SchemaTable[] {
     }
 }
 
-// Export database
+/**
+ * Exports the current database as a binary array
+ * 
+ * Creates a binary representation of the entire database that can be saved to a file
+ * or stored in browser storage (localStorage, IndexedDB).
+ * 
+ * @returns Uint8Array containing the database binary, or null if database not initialized
+ * @example
+ * const dbBinary = exportDatabase();
+ * if (dbBinary) {
+ *   const blob = new Blob([dbBinary], { type: 'application/x-sqlite3' });
+ *   // Save blob to file or storage
+ * }
+ */
 export function exportDatabase(): Uint8Array | null {
     if (!db) return null;
     return db.export();
 }
 
-// Import database
+/**
+ * Imports a database from a binary array
+ * 
+ * Replaces the current in-memory database with the imported one.
+ * Useful for loading saved databases or restoring backups.
+ * 
+ * @async
+ * @param data - Uint8Array containing the database binary data
+ * @returns Promise that resolves when import is complete
+ * @example
+ * const fileInput = document.querySelector('input[type="file"]');
+ * const file = fileInput.files[0];
+ * const arrayBuffer = await file.arrayBuffer();
+ * await importDatabase(new Uint8Array(arrayBuffer));
+ */
 export async function importDatabase(data: Uint8Array): Promise<void> {
     if (!SQL) {
         await initDatabase();
@@ -153,7 +255,17 @@ export async function importDatabase(data: Uint8Array): Promise<void> {
     db = new SQL.Database(data);
 }
 
-// Clear database
+/**
+ * Clears all user-created tables from the database
+ * 
+ * Drops all tables except SQLite system tables. Useful for resetting
+ * the database to an empty state.
+ * 
+ * @example
+ * clearDatabase();
+ * const schema = getSchema();
+ * console.log(schema.length); // 0
+ */
 export function clearDatabase(): void {
     if (!db) return;
 
@@ -167,7 +279,23 @@ export function clearDatabase(): void {
     });
 }
 
-// Load sample data
+/**
+ * Loads sample e-commerce data into the database
+ * 
+ * Creates and popululates tables with sample data including:
+ * - users (5 records)
+ * - categories (5 records)
+ * - products (10 records)
+ * - orders (5 records)
+ * - order_items (10 records)
+ * 
+ * This function is called automatically during database initialization.
+ * The sample data demonstrates table relationships and SQL query patterns.
+ * 
+ * @async
+ * @private
+ * @returns Promise that resolves when sample data is loaded
+ */
 async function loadSampleData(): Promise<void> {
     if (!db) return;
 
