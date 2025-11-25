@@ -9,6 +9,7 @@ import SchemaSidebar from "./components/SchemaSidebar";
 import FeaturesSidebar from "./components/FeaturesSidebar";
 import QueryLibrarySidebar from "./components/QueryLibrarySidebar";
 import ChartsView from "./components/ChartsView";
+import DraggableTableConnectionGraph from "./components/DraggableTableConnectionGraph";
 
 // Types
 interface QueryResult {
@@ -48,6 +49,7 @@ export default function Home() {
     title: string;
     data: { label: string; value: number }[];
   } | null>(null);
+  const [showConnections, setShowConnections] = useState(false);
 
   // Initialize database on mount
   useEffect(() => {
@@ -173,32 +175,48 @@ export default function Home() {
         }}
       >
         {/* Header */}
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          style={{
-            padding: "20px 24px",
-            borderBottom: "1px solid var(--border-primary)",
-            background: "var(--bg-secondary)",
-          }}
-        >
-          <h1
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3 }}
             style={{
-              fontSize: "1.5rem",
-              fontWeight: 700,
-              background: "linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              padding: "20px 24px",
+              borderBottom: "1px solid var(--border-primary)",
+              background: "var(--bg-secondary)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
-            QueryCraft
-          </h1>
-          <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginTop: "4px" }}>
-            Modern SQL Editor with In-Browser Execution
-          </p>
-        </motion.div>
+            <div>
+              <h1
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: 700,
+                  background: "linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                QueryCraft
+              </h1>
+              <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginTop: "4px" }}>Modern SQL Editor with In-Browser Execution</p>
+            </div>
+            <button
+              onClick={() => setShowConnections(!showConnections)}
+              style={{
+                padding: "6px 12px",
+                background: showConnections ? "var(--bg-primary)" : "var(--bg-tertiary)",
+                border: "1px solid var(--border-primary)",
+                borderRadius: "4px",
+                cursor: "pointer",
+                color: "var(--text-primary)",
+              }}
+            >
+              {showConnections ? "Hide Connections" : "Show Connections"}
+            </button>
+          </motion.div>
 
         {/* Query Tabs */}
         <div style={{ padding: "0 24px" }}>
@@ -222,19 +240,27 @@ export default function Home() {
             overflow: "hidden",
           }}
         >
-          {/* Editor - 40% height */}
-          <div style={{ height: "40%", minHeight: "200px" }}>
-            <Editor onRun={runQuery} isExecuting={isExecuting} />
-          </div>
+          {showConnections ? (
+            <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <DraggableTableConnectionGraph schema={schema} />
+            </div>
+          ) : (
+            <>
+              {/* Editor - 40% height */}
+              <div style={{ height: "40%", minHeight: "200px" }}>
+                <Editor onRun={runQuery} isExecuting={isExecuting} />
+              </div>
 
-          {/* Results - 60% height */}
-          <div style={{ flex: 1, minHeight: "0" }}>
-            {chartData ? (
-              <ChartsView chartData={chartData} onClose={() => setChartData(null)} />
-            ) : (
-              <ResultsGrid data={results} error={error} />
-            )}
-          </div>
+              {/* Results - 60% height */}
+              <div style={{ flex: 1, minHeight: "0" }}>
+                {chartData ? (
+                  <ChartsView chartData={chartData} onClose={() => setChartData(null)} />
+                ) : (
+                  <ResultsGrid data={results} error={error} />
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Footer */}

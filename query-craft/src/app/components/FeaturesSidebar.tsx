@@ -5,8 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   History,
   Download,
-  Upload,
-  Sparkles,
+
   ChevronDown,
   ChevronRight,
   Trash2,
@@ -18,6 +17,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 import TableChartSelector, { SchemaTable } from "./TableChartSelector";
+import TableConnectionGraph from "./TableConnectionGraph";
+import DraggableTableConnectionGraph from "./DraggableTableConnectionGraph";
 
 interface QueryHistoryItem {
   id: string;
@@ -37,7 +38,8 @@ interface FeaturesSidebarProps {
 }
 
 export default function FeaturesSidebar({ schema, onShowChart }: FeaturesSidebarProps) {
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["history", "export", "ai", "format", "stats", "settings"]));
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["history", "export", "format", "stats", "settings", "connections"]));
+  const [showDraggable, setShowDraggable] = useState(false);
   const [queryHistory, setQueryHistory] = useState<QueryHistoryItem[]>([
     {
       id: "1",
@@ -251,58 +253,14 @@ export default function FeaturesSidebar({ schema, onShowChart }: FeaturesSidebar
                   <button onClick={handleExportSQL} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px", background: "var(--bg-tertiary)", border: "1px solid var(--border-primary)", borderRadius: "6px", fontSize: "0.8125rem", color: "var(--text-secondary)", cursor: "pointer" }}>
                     <FileText size={14} /> Export as SQL
                   </button>
-                  <button onClick={() => { /* TODO: implement import */ }} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px", background: "var(--bg-tertiary)", border: "1px solid var(--border-primary)", borderRadius: "6px", fontSize: "0.8125rem", color: "var(--text-secondary)", cursor: "pointer" }}>
-                    <Upload size={14} /> Import Database
-                  </button>
+
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* AI Assistant Section */}
-        <div style={{ marginBottom: "8px" }}>
-          <button
-            onClick={() => toggleSection("ai")}
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "10px 12px",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              color: "var(--text-primary)",
-              background: "transparent",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Sparkles size={16} style={{ color: "var(--accent-warning)" }} />
-              <span>AI Assistant</span>
-            </div>
-            {expandedSections.has("ai") ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-          </button>
-          <AnimatePresence>
-            {expandedSections.has("ai") && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                style={{ overflow: "hidden", paddingLeft: "8px", marginTop: "4px" }}
-              >
-                <div style={{ padding: "12px", background: "var(--bg-tertiary)", borderRadius: "6px", border: "1px solid var(--border-primary)" }}>
-                  <textarea placeholder="Describe your query in plain English..." style={{ width: "100%", minHeight: "80px", padding: "8px", background: "var(--bg-primary)", border: "1px solid var(--border-primary)", borderRadius: "4px", fontSize: "0.8125rem", color: "var(--text-primary)", resize: "vertical", marginBottom: "8px" }} />
-                  <button style={{ width: "100%", padding: "8px", background: "linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))", color: "white", border: "none", borderRadius: "4px", fontSize: "0.8125rem", fontWeight: 500, cursor: "pointer" }}>Generate Query</button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+
 
         {/* DB Statistics Section */}
         <div style={{ marginBottom: "8px" }}>
@@ -331,6 +289,79 @@ export default function FeaturesSidebar({ schema, onShowChart }: FeaturesSidebar
         {/* Data Analytics Section */}
         <div style={{ marginBottom: "8px" }}>
           <TableChartSelector schema={schema} onShowChart={onShowChart} />
+        {/* Table Connections Section */}
+        <div style={{ marginBottom: "8px" }}>
+          <button
+            onClick={() => toggleSection("connections")}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 12px",
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "var(--text-primary)",
+              background: "transparent",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Zap size={16} style={{ color: "var(--accent-warning)" }} />
+              <span>Table Connections</span>
+            </div>
+            {expandedSections.has("connections") ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </button>
+          <AnimatePresence>
+            {expandedSections.has("connections") && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{ overflow: "hidden", paddingLeft: "8px", marginTop: "4px" }}
+              >
+                {/* Buttons to switch visualization */}
+                <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+                  <button
+                    onClick={() => setShowDraggable(false)}
+                    style={{
+                      flex: 1,
+                      padding: "6px",
+                      background: showDraggable ? "var(--bg-primary)" : "var(--bg-tertiary)",
+                      border: "1px solid var(--border-primary)",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Static Graph
+                  </button>
+                  <button
+                    onClick={() => setShowDraggable(true)}
+                    style={{
+                      flex: 1,
+                      padding: "6px",
+                      background: showDraggable ? "var(--bg-tertiary)" : "var(--bg-primary)",
+                      border: "1px solid var(--border-primary)",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Draggable Graph
+                  </button>
+                </div>
+                {showDraggable ? (
+                  <DraggableTableConnectionGraph schema={schema} />
+                ) : (
+                  <TableConnectionGraph schema={schema} />
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
         </div>
       </div>
     </motion.div>

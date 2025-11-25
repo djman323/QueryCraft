@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import MonacoEditor, { OnMount } from "@monaco-editor/react";
+import dynamic from "next/dynamic";
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+import type { OnMount } from "@monaco-editor/react";
 import { Play, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
